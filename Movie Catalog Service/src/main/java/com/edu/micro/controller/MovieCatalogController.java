@@ -5,6 +5,7 @@ import com.edu.micro.model.MovieCatalog;
 import com.edu.micro.model.UserCatalog;
 import com.edu.micro.model.UserRating;
 import com.edu.micro.repository.MovieCatalogRepository;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,13 +25,10 @@ public class MovieCatalogController {
 
     private RestTemplate restTemplate;
 
-    private WebClient.Builder webClientBuilder;
-
     @Autowired
-    public MovieCatalogController(MovieCatalogRepository movieRepository, RestTemplate restTemplate, WebClient.Builder webClientBuilder) {
+    public MovieCatalogController(MovieCatalogRepository movieRepository, RestTemplate restTemplate) {
         this.movieRepository = movieRepository;
         this.restTemplate = restTemplate;
-        this.webClientBuilder = webClientBuilder;
     }
 
     @PostMapping("/add")
@@ -40,6 +38,7 @@ public class MovieCatalogController {
     }
 
     @GetMapping("/{userId}")
+    @HystrixCommand(fallbackMethod = "getFallbackUserCatalog")
     public ResponseEntity<Map<String, Object>> getUserCatalog(@PathVariable("userId") String userId) {
         List<UserCatalog> catalogs = new ArrayList<>();
         // Get all rated movie IDs
@@ -61,6 +60,7 @@ public class MovieCatalogController {
     }
 
     @GetMapping("/all")
+    @HystrixCommand(fallbackMethod = "getFallbackMovieCatalog")
     public ResponseEntity<List<MovieCatalog>> getMovieCatalog() {
         List<MovieCatalog> movieCatalogs = new ArrayList<>();
         ResponseEntity<Movie[]> moviesRest = restTemplate.getForEntity("http://movie-info-service/movie/all", Movie[].class);

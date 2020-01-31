@@ -33,5 +33,4 @@ public class MongoConfig {
         return converter;
     }
 
-
 }

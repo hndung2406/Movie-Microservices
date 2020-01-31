@@ -48,7 +48,7 @@ public class RatingController {
         return new ResponseEntity<>(userRatings, HttpStatus.OK);
     }
 
-    @GetMapping("/averageRating/{movieId}")
+    @GetMapping("/average/{movieId}")
     public ResponseEntity<Map<String, Object>> getAverageMovieRating(@PathVariable("movieId") String movieId) {
         List<UserRating> userRatingByMovieId = userRatingRepository.findByMovieId(movieId);
         double sumRating = 0;
